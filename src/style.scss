@@ -1,0 +1,118 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #000;
+  background-color: #FFF;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #FFF;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+#game-board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 500px;
+  height: 500px;
+  border: 5px solid #000;
+  overflow: hidden;
+
+  &.start {
+    .btn-start {
+      display: block;
+    }
+
+    .game-over{
+      display: none;
+    }
+
+    .btn-restart {
+      display: none;
+    }
+  }
+
+  &.running {
+    .btn-start {
+      display: none;
+    }
+
+    .btn-restart {
+      display: none;
+    }
+
+    .game-over {
+      display: none;
+    }
+  }
+
+  &.end {
+    .btn-start {
+      display: none;
+    }
+
+    .game-over {
+      display: block;
+    }
+
+    .btn-restart {
+      display: block;
+    }
+  }
+}
+
+.character {
+  position: absolute;
+  background-color: #00F;
+  border-radius: 50%;
+}
+
+.rat {
+  position: absolute;
+  background-color: #666;
+  border-radius: 50%;
+}
