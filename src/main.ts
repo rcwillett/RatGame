@@ -12,6 +12,7 @@ class Game {
   timeActive: number;
   timeToSpawn: number;
   refreshTime: number = 100;
+  shotTimeoutActive: boolean = false;
   upKeyActive: boolean = false;
   downKeyActive: boolean = false;
   leftKeyActive: boolean = false;
@@ -50,6 +51,7 @@ class Game {
     this.board.classList.add("end");
     window.removeEventListener("keydown", this.onKeyDown);
     window.removeEventListener("keyup", this.onKeyUp);
+    this.board.removeEventListener("click", this.onClick);
   }
 
   restartGame = () => {
@@ -94,35 +96,38 @@ class Game {
   }
 
   onClick = (e: MouseEvent) => {
-    let ratToRemove: number = -1;
-    const board = this.board.getBoundingClientRect();
-    const x = e.clientX - board.left; //x position within the element.
-    const y = board.height - (e.clientY - board.top);  //y position within the element.
-    const characterX = this.character!.xPosition + this.character!.width / 2;
-    const characterY = this.character!.yPosition + this.character!.height / 2;
-    let hitPoint: [number, number] | null = null;
-    for (let i = 0; i < this.rats.length; i++) {
-      const rat = this.rats[i];
-      hitPoint = rat.isHit(x, y, characterX, characterY);
-      if (hitPoint) {
-        this.animateShot(characterX, characterY, hitPoint[0], hitPoint[1])
-        const isDead = rat.isDead();
-        if (isDead) {
-          rat.remove();
-          this.score += 1;
-          ratToRemove = i;
-          break;
+    if (!this.shotTimeoutActive) {
+      this.shotTimeoutActive = true;
+      let ratToRemove: number = -1;
+      const board = this.board.getBoundingClientRect();
+      const x = e.clientX - board.left; //x position within the element.
+      const y = board.height - (e.clientY - board.top);  //y position within the element.
+      const characterX = this.character!.xPosition + this.character!.width / 2;
+      const characterY = this.character!.yPosition + this.character!.height / 2;
+      let hitPoint: [number, number] | null = null;
+      for (let i = 0; i < this.rats.length; i++) {
+        const rat = this.rats[i];
+        hitPoint = rat.isHit(characterX, characterY, x, y);
+        if (hitPoint) {
+          this.animateShot(characterX, characterY, hitPoint[0], hitPoint[1])
+          const isDead = rat.isDead();
+          if (isDead) {
+            rat.remove();
+            this.score += 1;
+            ratToRemove = i;
+            break;
+          }
         }
       }
-    }
-    if (!hitPoint) {
-      const angleOfShot = Math.atan2(y - characterY, x - characterX);
-      const x1 = characterX + Math.cos(angleOfShot) * 500;
-      const y1 = characterY + Math.sin(angleOfShot) * 500;
-      this.animateShot(characterX, characterY, x1, y1)
-    }
-    if (ratToRemove > -1) {
-      this.rats.splice(ratToRemove, 1);
+      if (!hitPoint) {
+        const angleOfShot = Math.atan2(y - characterY, x - characterX);
+        const x1 = characterX + Math.cos(angleOfShot) * 500;
+        const y1 = characterY + Math.sin(angleOfShot) * 500;
+        this.animateShot(characterX, characterY, x1, y1)
+      }
+      if (ratToRemove > -1) {
+        this.rats.splice(ratToRemove, 1);
+      }
     }
   }
 
@@ -136,6 +141,7 @@ class Game {
     shot?.lineTo(x1, correctedY1);
     shot?.stroke()
     setTimeout(() => {
+      this.shotTimeoutActive = false;
       shot?.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
     }, 100);
   }
@@ -144,7 +150,7 @@ class Game {
     this.timeActive += this.refreshTime;
     if (this.timeActive >= this.timeToSpawn) {
       this.rats.push(new Rat(this.board));
-      this.timeToSpawn = this.timeActive + Math.ceil(Math.random() * 5000);
+      this.timeToSpawn = this.timeActive + Math.ceil(Math.random() * (5000 - 4500 * (1 - Math.exp(-this.timeActive / 10000))));
     }
     this.rats.forEach((rat) => {
       rat.move(this.character!);
