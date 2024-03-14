@@ -53,18 +53,22 @@ class Rat {
         }
     }
 
-    isHit(x1: number, y1: number, x2: number, y2: number): boolean {
+    isHit(x1: number, y1: number, x2: number, y2: number): [number, number] | null {
         const x0 = this.xPosition + this.width / 2;
         const y0 = this.yPosition + this.height / 2;
         const distanceToShot = Math.abs((x2 - x1) * (y2 - y0) - (x2 - x0) * (y2 - y1)) / Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        console.log("ratX", this.xPosition, "ratY", this.yPosition);
-        console.log("shotX", this.xPosition, "shotY", this.yPosition);
-        console.log("distanceToShot: " + distanceToShot);
         if (distanceToShot < this.width / 2) {
+            const angleOfShot = Math.atan2(y2 - y1, x2 - x1);
+            const angleOfRat = Math.atan2(y0 - y1, x0 - x1);
+            const angleDiff = Math.abs(angleOfShot - angleOfRat);
+            const distanceToRat = Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
+            const distanceOnLine = Math.cos(angleDiff) * distanceToRat;
+            const pointOnLineX = distanceOnLine * Math.cos(angleOfShot) + x1;
+            const pointOnLineY = distanceOnLine * Math.sin(angleOfShot) + y1;
             this.lives--;
-            return true;
+            return [pointOnLineX, pointOnLineY];
         }
-        return false;
+        return null;
     }
 
     isDead() {
